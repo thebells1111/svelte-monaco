@@ -21,7 +21,7 @@
   const markdownModel = monaco.editor.createModel("", "markdown");
   const styleModel = monaco.editor.createModel("", "css");
   const markdownValue = () => markdownModel.getValue();
-  const styleValue = () => styleValue.getValue();
+  const styleValue = () => styleModel.getValue();
 
   markdownModel.updateOptions({ tabSize: 2 });
   styleModel.updateOptions({ tabSize: 2 });
