@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte'
 
 	let markupEditor = monaco.editor;
+	
 	let html = ''
 
 	onMount(()=>{
@@ -19,7 +20,6 @@
 	})
 
 	function markup(e){
-		console.log(markupEditor)
 		html = markupEditor.getModels()[0].getValue();
 	}
 
