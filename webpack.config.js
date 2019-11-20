@@ -1,5 +1,4 @@
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const path = require("path");
 
 const mode = process.env.NODE_ENV || "development";
@@ -7,7 +6,13 @@ const prod = mode === "production";
 
 module.exports = {
   entry: {
-    bundle: ["./src/main.js"]
+    bundle: ["./src/main.js"],
+    // Package each language's worker and give these filenames in `getWorkerUrl`
+    "editor.worker": "monaco-editor/esm/vs/editor/editor.worker.js",
+    "json.worker": "monaco-editor/esm/vs/language/json/json.worker",
+    "css.worker": "monaco-editor/esm/vs/language/css/css.worker",
+    "html.worker": "monaco-editor/esm/vs/language/html/html.worker",
+    "ts.worker": "monaco-editor/esm/vs/language/typescript/ts.worker"
   },
   resolve: {
     alias: {
@@ -17,7 +22,7 @@ module.exports = {
     mainFields: ["svelte", "browser", "module", "main"]
   },
   output: {
-    path: __dirname + "/public",
+    path: __dirname + "/dist",
     filename: "[name].js",
     chunkFilename: "[name].[id].js"
   },
@@ -50,8 +55,7 @@ module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
       filename: "[name].css"
-    }),
-    new MonacoWebpackPlugin()
+    })
   ],
   devtool: prod ? false : "source-map"
 };
