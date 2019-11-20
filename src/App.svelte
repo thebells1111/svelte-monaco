@@ -91,6 +91,20 @@
         ) {
           e.preventDefault();
           console.log("save");
+          const data = JSON.stringify({
+            markdown: markdownValue(),
+            css: styleValue()
+          });
+          const blob = new Blob([data]);
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.setAttribute("href", url);
+          link.setAttribute("download", "test.json");
+
+          const event = document.createEvent("MouseEvents");
+          event.initMouseEvent("click");
+          link.dispatchEvent(event);
         }
       },
       false
