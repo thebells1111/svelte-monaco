@@ -61,8 +61,15 @@
       wrappingIndent: "indent",
       lineNumbers: "off",
       scrollBeyondLastLine: false
-    });
-  });
+	});
+	document.addEventListener("keydown", function(e) {
+		if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)  && e.keyCode == 83) {
+			e.preventDefault();
+			console.log('save')
+		}
+		}, false);
+  	});
+
 </script>
 <style>
   #editor {
