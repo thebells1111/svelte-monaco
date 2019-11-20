@@ -1,6 +1,25 @@
 <script>
   import { onMount } from "svelte";
   import * as monaco from "monaco-editor";
+
+  self.MonacoEnvironment = {
+    getWorkerUrl: function(moduleId, label) {
+      if (label === "json") {
+        return "./json.worker.bundle.js";
+      }
+      if (label === "css") {
+        return "./css.worker.bundle.js";
+      }
+      if (label === "html") {
+        return "./html.worker.bundle.js";
+      }
+      if (label === "typescript" || label === "javascript") {
+        return "./ts.worker.bundle.js";
+      }
+      return "./editor.worker.bundle.js";
+    }
+  };
+
   import "../public/prism.css";
   const prism = require("markdown-it-prism");
   const markdownItAttrs = require("markdown-it-attrs");
@@ -61,16 +80,24 @@
       wrappingIndent: "indent",
       lineNumbers: "off",
       scrollBeyondLastLine: false
-	});
-	document.addEventListener("keydown", function(e) {
-		if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)  && e.keyCode == 83) {
-			e.preventDefault();
-			console.log('save')
-		}
-		}, false);
-  	});
+    });
 
+    document.addEventListener(
+      "keydown",
+      function(e) {
+        if (
+          (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
+          e.keyCode == 83
+        ) {
+          e.preventDefault();
+          console.log("save");
+        }
+      },
+      false
+    );
+  });
 </script>
+
 <style>
   #editor {
     display: flex;
@@ -84,6 +111,10 @@
   #markdown-editor,
   #style-editor {
     border-right: 1px solid #000;
+  }
+
+  #viewer {
+    overflow-y: auto;
   }
 </style>
 
