@@ -26,9 +26,10 @@
   export let language;
   export let textModelOptions;
   export let editorOptions;
+  export let model;
   let editor;
 
-  const model = monaco.editor.createModel("", language);
+  model = monaco.editor.createModel("", language);
   model.updateOptions(textModelOptions);
   editorOptions = { ...{ model: model }, ...editorOptions };
 
