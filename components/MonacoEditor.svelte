@@ -27,6 +27,8 @@
   export let textModelOptions;
   export let editorOptions;
   export let model;
+  export let activeTab;
+  export let name;
   let editor;
 
   model = monaco.editor.createModel("", language);
@@ -41,6 +43,8 @@
 
   onMount(() => {
     monaco.editor.create(editor, editorOptions);
+    console.log(name);
+    console.log(activeTab);
   });
 </script>
 
@@ -48,7 +52,12 @@
   div {
     width: 100%;
     height: 100%;
+    display: none;
+  }
+
+  .active {
+    display: block;
   }
 </style>
 
-<div bind:this="{editor}"></div>
+<div class:active="{name === activeTab}" bind:this="{editor}"></div>
