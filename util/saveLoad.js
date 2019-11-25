@@ -7,8 +7,6 @@ function saveLoad(e, html, markdownModel, styleModel, fileName) {
         markdown: markdownModel.getValue(),
         css: styleModel.getValue()
       });
-
-      fileName = prompt("Save File As", fileName);
       const blob = new Blob([data], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -29,7 +27,6 @@ function saveLoad(e, html, markdownModel, styleModel, fileName) {
         }
       `;
 
-      fileName = prompt("Save File As", fileName);
       const blob = new Blob([data], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
