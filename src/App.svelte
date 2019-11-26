@@ -1,131 +1,144 @@
 <script>
   import { onMount } from "svelte";
-  import * as monaco from "monaco-editor";
+  import { saveLoad }from "../util/saveLoad";
+  import Editor from "../components/MonacoEditor.svelte";
+  import Viewer from "../components/MarkdownViewer.svelte";
+  import { markdownOptions, styleOptions } from "../util/editorOptions"
+ 
+  let markdown='';
+  let html ='';
+  let markdownModel;
+  let styleModel;  
+  let fileName = 'markdown';  
+  let activeTab = 'style'
 
-  self.MonacoEnvironment = {
-    getWorkerUrl: function(moduleId, label) {
-      if (label === "json") {
-        return "./json.worker.bundle.js";
-      }
-      if (label === "css") {
-        return "./css.worker.bundle.js";
-      }
-      if (label === "html") {
-        return "./html.worker.bundle.js";
-      }
-      if (label === "typescript" || label === "javascript") {
-        return "./ts.worker.bundle.js";
-      }
-      return "./editor.worker.bundle.js";
-    }
-  };
+  function markdownContentChange(e) {
+    markdown = e.detail.value;
+    window.localStorage.setItem("markdown", markdown);
+  }
 
-  import "../public/prism.css";
-  const prism = require("markdown-it-prism");
-  const markdownItAttrs = require("markdown-it-attrs");
-  const md = require("markdown-it")({
-    html: true // Enable HTML tags in source
-  });
-
-  md.use(markdownItAttrs, {
-    // optional, these are default options
-    leftDelimiter: "{",
-    rightDelimiter: "}",
-    allowedAttributes: [] // empty array = all attributes are allowed
-  });
-  md.use(prism);
-
-  let html = "";
-
-  const markdownModel = monaco.editor.createModel("", "markdown");
-  const styleModel = monaco.editor.createModel("", "css");
-  const markdownValue = () => markdownModel.getValue();
-  const styleValue = () => styleModel.getValue();
-
-  markdownModel.updateOptions({ tabSize: 2 });
-  styleModel.updateOptions({ tabSize: 2 });
-
-  markdownModel.onDidChangeContent(e => {
-    let mdv = markdownValue();
-    html = md.render(mdv);
-    window.localStorage.setItem("markdown", mdv);
-  });
-
-  styleModel.onDidChangeContent(e => {
-    let css = styleValue();
+  function styleContentChange(e) {
+    let css = e.detail.value;
     let styler = document.getElementById("styler");
     styler.innerText = css;
     window.localStorage.setItem("css", css);
-  });
+  }
+
+  function handleKeydown(e) {
+    fileName = saveLoad(e, html, markdownModel, styleModel, fileName) || fileName;    
+  }
 
   onMount(() => {
     markdownModel.setValue(window.localStorage.getItem("markdown"));
     styleModel.setValue(window.localStorage.getItem("css"));
-
-    monaco.editor.create(document.getElementById("markdown-editor"), {
-      model: markdownModel,
-      wordWrap: "wordWrapColumn",
-      wordWrapColumn: 60,
-      wordWrapMinified: true,
-      wrappingIndent: "indent",
-      lineNumbers: "off",
-      scrollBeyondLastLine: false
-    });
-
-    monaco.editor.create(document.getElementById("style-editor"), {
-      model: styleModel,
-      wordWrap: "wordWrapColumn",
-      wordWrapColumn: 60,
-      wordWrapMinified: true,
-      wrappingIndent: "indent",
-      lineNumbers: "off",
-      scrollBeyondLastLine: false
-    });
-
-    document.addEventListener(
-      "keydown",
-      function(e) {
-        if (
-          (window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) &&
-          e.keyCode == 83
-        ) {
-          e.preventDefault();
-          console.log("save");
-        }
-      },
-      false
-    );
+    fileName = window.localStorage.getItem("fileName");
   });
+
+  
 </script>
 
 <style>
-  #editor {
-    display: flex;
-    padding: 1em;
-    height: calc(100vh - 3em);
-  }
-  #editor > div {
-    width: 100%;
-    flex-grow: 1;
-  }
-  #markdown-editor,
-  #style-editor {
-    border-right: 1px solid #000;
+.container {
+  display: flex;
+  padding: 1em;
+  height: calc(100vh - 3em);  
+}
+
+.container-left{
+  width: 100%;
+  flex-grow: 1;
+}
+
+.editor{
+  width:100%;
+  height:calc(100% - 3em);
+  visibility: hidden;
+  position:relative;
+}
+
+.markdown.editor{
+  transform: translateY(-100%);
+}
+
+.active{
+  visibility: visible;
+}
+
+.top-bar{
+  border-bottom: 1px solid #ddd;	
+  margin-bottom: .25em;
+  width: calc(100% - 1em);
+}
+button{
+		display: inline-block;
+		margin: 0 0 -1px;
+		padding: .5rem;
+		font-weight: 600;
+		text-align: center;
+		color: #bbb;
+		border: 1px solid transparent;
+    border-bottom: 1px solid #ddd;		
+		background: #fff;
+		margin-left: .25em;
+		cursor: pointer;
+		border-radius: 4px 4px 0 0 
+	}
+	button.active{
+		color: #000;
+		border: 1px solid #ddd;
+		border-bottom: 1px solid #fff;
+		background: #fff;
+	}
+	
+	button:hover {
+		color: #555;
+	}
+	
+	button.active:hover {
+		color: #000;
+	}
+	
+	input{
+		margin-bottom:0;
+    margin-left: 1em;
+	}
+  label{
+    display:inline-block;
+    position: relative;
+    float: right;
   }
 
-  #viewer {
-    overflow-y: auto;
-  }
+
+
 </style>
+
+<svelte:window on:keydown="{handleKeydown}" />
 
 <svelte:head>
   <style type="text/css" id="styler"></style>
 </svelte:head>
 
-<div id="editor">
-  <div id="style-editor"></div>
-  <div id="markdown-editor"></div>
-  <div id="viewer">
-    {@html html}
-  </div>
+<div class="container"> 
+  <div class="container-left">
+    <div class="top-bar">
+      <button class:active="{activeTab === 'style'}" on:click={()=>
+        activeTab='style'}>
+        style
+      </button>
+      <button class:active="{activeTab === 'markdown'}"on:click={()=>
+        activeTab='markdown'}>
+        markdown
+      </button>   
+      <label>File Name:<input type="text" bind:value={fileName} on:input={e=>window.localStorage.setItem("fileName", fileName)}/></label>
+    </div>
+      <div class="style editor" class:active="{activeTab === 'style'}">        
+        <Editor bind:model={styleModel} {...styleOptions} on:didContentChange={styleContentChange}/>
+      </div>
+      <div class="markdown editor" class:active="{activeTab === 'markdown'}">        
+        <Editor bind:model={markdownModel} {...markdownOptions} on:didContentChange={markdownContentChange}/>
+      </div>
+  </div>  
+ 
+  <Viewer bind:html {markdown}/>  
 </div>
+
