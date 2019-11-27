@@ -10,11 +10,13 @@
   let markdownModel;
   let styleModel;  
   let fileName = 'markdown';  
-  let activeTab = 'style'
+  let activeTab = 'markdown'
 
   function markdownContentChange(e) {
     markdown = e.detail.value;
     window.localStorage.setItem("markdown", markdown);
+    
+    Prism.highlightAll()
   }
 
   function styleContentChange(e) {
